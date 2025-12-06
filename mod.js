@@ -337,9 +337,11 @@ module.exports.register = function(scope) {
                 { role: 'user', content: prompts.generationPrompt }
             ];
 
-            const useCustomModel = modConfig && modConfig.aiModel && modConfig.aiModel.trim() !== '';
+            // Fetch current mod config dynamically (not the snapshot from initialization)
+            const currentModConfig = scope.modLoader.getModConfig(modName);
+            const useCustomModel = currentModConfig && currentModConfig.aiModel && currentModConfig.aiModel.trim() !== '';
             
-            console.log(`🎨 Generating scene illustration prompt via LLM... ${useCustomModel ? `(Model: ${modConfig.aiModel})` : '(Default Model)'}`);
+            console.log(`🎨 Generating scene illustration prompt via LLM... ${useCustomModel ? `(Model: ${currentModConfig.aiModel})` : '(Default Model)'}`);
             const requestStart = Date.now();
             
             const llmOptions = {
@@ -350,7 +352,7 @@ module.exports.register = function(scope) {
 
             // Use custom model if configured
             if (useCustomModel) {
-                llmOptions.model = modConfig.aiModel.trim();
+                llmOptions.model = currentModConfig.aiModel.trim();
             }
 
             const responseText = await LLMClient.chatCompletion(llmOptions);
